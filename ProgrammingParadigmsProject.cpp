@@ -8,13 +8,18 @@ class Coffee {
 public:
     Coffee(int water, int milk, int coffee) : water_(water), milk_(milk), coffee_(coffee) {}
 
-    virtual string getName() const = 0;
+    virtual string getName() const {
+        return "Coffee";
+    }
+    
     virtual bool isResourceSufficient(int water, int milk, int coffee) const {
         return water_ >= water && milk_ >= milk && coffee_ >= coffee;
     }
+    
     virtual double getCost() const {
-        return 0.0;  
+        return 0.0;  // Base cost (can be overridden in derived classes)
     }
+    
     virtual void brew(int& water, int& milk, int& coffee) {
         water -= waterNeeded();
         milk -= milkNeeded();
@@ -25,6 +30,9 @@ public:
     int waterNeeded() const { return water_; }
     int milkNeeded() const { return milk_; }
     int coffeeNeeded() const { return coffee_; }
+
+    friend double calculateTotalCost(const Coffee& coffee);
+    friend Coffee operator+(const Coffee& coffee1, const Coffee& coffee2);
 
 private:
     int water_;
@@ -39,8 +47,9 @@ public:
     string getName() const override {
         return "Espresso";
     }
+
     double getCost() const override {
-        return 3.20;  
+        return 3.20;  // Cost of Espresso
     }
 };
 
@@ -51,8 +60,9 @@ public:
     string getName() const override {
         return "Cappuccino";
     }
+
     double getCost() const override {
-        return 5.25;  
+        return 5.25;  // Customize cost if needed
     }
 };
 
@@ -63,8 +73,9 @@ public:
     string getName() const override {
         return "Latte";
     }
+
     double getCost() const override {
-        return 6.90; 
+        return 6.90;  // Customize cost if needed
     }
 };
 
@@ -75,8 +86,9 @@ public:
     string getName() const override {
         return "Americano";
     }
+
     double getCost() const override {
-        return 4.00; 
+        return 4.00;  // Cost of Americano
     }
 };
 
@@ -86,9 +98,9 @@ public:
 
     void report() const {
         cout << "Resources:" << endl;
-        cout << "Water: " << water << "ml" << endl;
-        cout << "Milk: " << milk << "ml" << endl;
-        cout << "Coffee: " << coffee << "g" << endl;
+        cout << "Water: " << setw(5) << water << " ml" << endl;
+        cout << "Milk:  " << setw(5) << milk << " ml" << endl;
+        cout << "Coffee: " << setw(5) << coffee << " g" << endl;
     }
 
     void makeCoffee(const string& coffeeType) {
@@ -111,7 +123,6 @@ public:
         int milkAmount = selectedCoffee->milkNeeded();
 
         if (selectedCoffee->isResourceSufficient(waterAmount, milkAmount, coffeeAmount)) {
-            // Ask for money in dollars and cents
             double cost = selectedCoffee->getCost();
             double money;
             cout << "Please insert $" << fixed << setprecision(2) << cost << ": ";
@@ -120,7 +131,6 @@ public:
             if (money >= cost) {
                 selectedCoffee->brew(water, milk, coffee);
                 coffee -= coffeeAmount;
-                // Return change if any
                 double change = money - cost;
                 if (change > 0) {
                     cout << "Change: $" << fixed << setprecision(2) << change << endl;
@@ -146,6 +156,17 @@ private:
     int milk;
     int coffee;
 };
+
+double calculateTotalCost(const Coffee& coffee) {
+    return coffee.getCost();
+}
+
+Coffee operator+(const Coffee& coffee1, const Coffee& coffee2) {
+    int totalWater = coffee1.waterNeeded() + coffee2.waterNeeded();
+    int totalMilk = coffee1.milkNeeded() + coffee2.milkNeeded();
+    int totalCoffee = coffee1.coffeeNeeded() + coffee2.coffeeNeeded();
+    return Coffee(totalWater, totalMilk, totalCoffee);
+}
 
 int main() {
     CoffeeMaker coffeeMaker;
